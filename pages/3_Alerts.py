@@ -110,11 +110,11 @@ section_title(f"Active Incidents ({len(filtered)})")
 incident_cols = [
     "timestamp",
     "severity",
-    "user_id",
+    "full_name",
+    "department",
     "query_type",
     "table_accessed",
     "rows_returned",
-    "query_text",
 ]
 st.dataframe(
     filtered[incident_cols],

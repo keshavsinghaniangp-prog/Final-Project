@@ -3,105 +3,90 @@ import random
 import time
 from datetime import datetime
 
-# Define absolute paths relative to this script
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_DIR = os.path.join(BASE_DIR, "logs")
-LOG_FILE = os.path.join(LOG_DIR, "postgresql.log")
+import pandas as pd
+from sqlalchemy import create_engine
+
+DB_URI = "mysql+mysqlconnector://root:root_password@localhost:3306/security_monitoring"
+LOG_FILE = os.path.join(os.path.dirname(__file__), "logs", "postgresql.log")
 
 
-def setup_log_dir():
-    if not os.path.exists(LOG_DIR):
-        os.makedirs(LOG_DIR)
-    # Clear the file on startup to simulate fresh logs
-    try:
-        with open(LOG_FILE, "w") as f:
-            f.write("")
-        print(f"Log file initialized at: {LOG_FILE}")
-    except Exception as e:
-        print(f"Error initializing log file: {e}")
+class StatefulLogGenerator:
+    def __init__(self):
+        self.engine = create_engine(DB_URI)
+        self.users_df = self.load_users()
+        self.parts = [
+            "HYD-PUMP-01",
+            "TRAN-GEAR-X",
+            "AXLE-BRKT-99",
+            "VALVE-STEM-04",
+            "ENG-FLTR-V8",
+        ]
+        self.tables = {
+            "Warehouse": ["inventory", "products", "orders"],
+            "HR": ["hr_data", "employees"],
+            "Sales": ["orders", "customers", "products"],
+            "Finance": ["finance", "transactions", "salary"],
+        }
 
+    def load_users(self):
+        try:
+            return pd.read_sql("SELECT user_id, department FROM employees", self.engine)
+        except:
+            print("⚠️ Employees table not seeded! Run seed_employees.py first.")
+            exit(1)
 
-def generate_log_line():
-    users = [f"user_{i:02d}" for i in range(1, 41)]
-    all_tables = [
-        "salary",
-        "finance",
-        "hr_data",
-        "transactions",
-        "customers",
-        "orders",
-        "inventory",
-        "products",
-        "employees",
-    ]
-    query_types = ["SELECT", "INSERT", "UPDATE", "DELETE", "UNKNOWN"]
+    def generate_themed_query(self, dept, is_anomaly=False):
+        # RBAC Logic: If anomaly, pick a table outside their department
+        if is_anomaly:
+            target_dept = random.choice([d for d in self.tables.keys() if d != dept])
+            table = random.choice(self.tables[target_dept])
+        else:
+            table = random.choice(self.tables.get(dept, ["products"]))
 
-    user = random.choice(users)
-    table = random.choice(all_tables)
-    q_type = random.choice(query_types)
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        part = random.choice(self.parts)
 
-    # --- Refined Anomaly & Warning Simulation ---
-    # We now decouple after-hours and sensitive access for more realistic scenarios.
+        # Tractor Parts Themed Queries
+        if table == "inventory":
+            if random.random() > 0.5:
+                return (
+                    "UPDATE",
+                    f"UPDATE inventory SET stock = stock - {random.randint(1, 10)} WHERE part_sku = '{part}'",
+                )
+            return (
+                "SELECT",
+                f"SELECT stock_level FROM inventory WHERE warehouse_zone = 'ZONE-A'",
+            )
+        elif table == "finance":
+            return (
+                "SELECT",
+                f"SELECT * FROM finance WHERE transaction_type = 'WIRE_TRANSFER' AND amount > 50000",
+            )
+        elif table == "hr_data":
+            return (
+                "SELECT",
+                f"SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'",
+            )
+        else:
+            return "SELECT", f"SELECT id, name FROM {table} LIMIT 100"
 
-    # Scenario 1: High-Risk Anomaly (e.g., Exfiltration)
-    if random.random() < 0.1:
-        table = random.choice(
-            ["salary", "finance", "customers"]
-        )  # Target sensitive data
-        q_type = "SELECT"
-        q_text = f"SELECT * FROM {table} WHERE 1=1"
-
-    # Scenario 2: Medium-Risk Warning (e.g., After-hours access on non-sensitive data)
-    elif random.random() < 0.15:
-        # Simulate after-hours access on a NON-SENSITIVE table
-        table = random.choice(["inventory", "products", "orders"])
-        q_type = "UPDATE"
-        q_text = f"UPDATE {table} SET stock = 0 WHERE last_updated < '2023-01-01'"
-        # Force timestamp to be after hours
-        timestamp = (
-            datetime.now()
-            .replace(hour=random.choice([22, 23, 0, 1]))
-            .strftime("%Y-%m-%d %H:%M:%S")
-        )
-
-    # Scenario 3: Medium-Risk Warning (e.g., Sensitive access during business hours)
-    elif random.random() < 0.15:
-        table = "hr_data"
-        q_type = "SELECT"
-        q_text = f"SELECT ssn, name FROM {table} LIMIT 200"
-
-    # Scenario 4: Normal Behavior (Default)
-    else:
-        q_text = f"{q_type} id, name FROM {table} WHERE id = {random.randint(1, 1000)}"
-
-    # Format exactly as pipeline expects
-    log_line = f"{timestamp} {user} {q_type} {q_text}\n"
-    return log_line
-
-
-def simulate_database_traffic():
-    setup_log_dir()
-    print(f"Starting simulated database traffic... Writing to {LOG_FILE}")
-    print("Press Ctrl+C to stop.")
-
-    try:
+    def run(self):
+        print(f"🚀 Generator Started. Role-Based logs writing to {LOG_FILE}...")
         while True:
-            try:
-                with open(LOG_FILE, "a") as f:
-                    for _ in range(random.randint(1, 5)):
-                        line = generate_log_line()
-                        f.write(line)
-                        f.flush()
+            user = self.users_df.sample(n=1).iloc[0]
+            uid, dept = user["user_id"], user["department"]
 
-                time.sleep(random.uniform(0.5, 2.0))
-            except Exception as e:
-                print(f"Error writing to logs: {e}")
-                time.sleep(5)
+            # 10% Anomaly Chance
+            is_anomaly = random.random() < 0.1
+            q_type, q_text = self.generate_themed_query(dept, is_anomaly)
 
-    except KeyboardInterrupt:
-        print("\nStopping simulated traffic.")
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_line = f"{ts} {uid} {q_type} {q_text}\n"
+
+            with open(LOG_FILE, "a") as f:
+                f.write(log_line)
+
+            time.sleep(random.uniform(0.5, 2.0))
 
 
 if __name__ == "__main__":
-    simulate_database_traffic()
+    StatefulLogGenerator().run()

@@ -1,136 +1,136 @@
-from typing import cast
-
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from _bootstrap import ensure_project_root
+from scripts.feature_engineering import engineer_user_features
+from scripts.risk_scoring import calculate_risk_scores
+from utils.config import RISK_COLORS
+from utils.data_loader import get_processed_data
+from utils.ui import configure_page, page_header, section_title, show_empty
 
-ensure_project_root()
-
-from utils.config import RISK_COLORS  # noqa: E402
-from utils.data_loader import get_processed_data  # noqa: E402
-from utils.risk import summarize_risk  # noqa: E402
-from utils.ui import (  # noqa: E402
-    configure_page,
-    metric_card,
-    page_header,
-    section_title,
-    show_empty,
-)
-
-
-@st.cache_data(ttl=5)
-def load_page_data():
-    df = get_processed_data()
-    return df, summarize_risk(df)
-
-
+# 1. Configuration
 configure_page("Risk Posture")
-df, risk = load_page_data()
 
+
+# 2. Data Loading & Dual-Tier Processing
+@st.cache_data(ttl=5)
+def load_all_metrics():
+    # Tier 0: Get Raw Relational Data from MySQL
+    df = get_processed_data()
+    if df.empty:
+        return pd.DataFrame(), pd.DataFrame()
+
+    # Tier 1: Query-Level Anomaly Detection is already done in the pipeline
+    # Tier 2: User-Level Behavioral Profiling
+    user_features = engineer_user_features(df)
+    risk_df = calculate_risk_scores(user_features)
+
+    return df, risk_df
+
+
+df, risk_df = load_all_metrics()
+
+# 3. Header
 page_header(
     "Risk Posture",
-    "User-level scoring based on ML anomalies, sensitive access, and exfiltration signals.",
+    "Global security overview using Supervised (Query) and Unsupervised (Behavioral) ML models.",
     "Healthy" if not df.empty else "Awaiting Logs",
 )
 
 if df.empty:
     show_empty(
         "No live monitoring data is available.",
-        ["Start the generator and MySQL pipeline, then refresh this page."],
+        ["Ensure Docker MySQL, the Log Generator, and the Pipeline are running."],
     )
     st.stop()
 
-cols = st.columns(4)
-with cols[0]:
-    metric_card("Users monitored", risk["total_users"], "Unique users in Docker MySQL")
-with cols[1]:
-    metric_card("High risk", risk["high_risk_users"], "Top quartile by risk score")
-with cols[2]:
-    metric_card("Medium risk", risk["medium_risk_users"], "Elevated behavior profile")
-with cols[3]:
-    metric_card("Low risk", risk["low_risk_users"], "Lowest relative risk group")
+# 4. Top KPI Metric Cards (Unique Users)
+m1, m2, m3, m4 = st.columns(4)
 
-chart_cols = st.columns([1, 1.4])
-with chart_cols[0]:
-    section_title("Risk Tiers")
-    fig = px.pie(
-        risk["risk_distribution"],
-        names="Risk Level",
-        values="Count",
-        hole=0.58,
-        color="Risk Level",
+total_users = len(risk_df)
+high_risk = len(risk_df[risk_df["risk_level"] == "High Risk"])
+med_risk = len(risk_df[risk_df["risk_level"] == "Medium Risk"])
+low_risk = len(risk_df[risk_df["risk_level"] == "Low Risk"])
+
+with m1:
+    st.metric("Users Monitored", total_users)
+with m2:
+    st.metric("High Risk Profile", high_risk, delta=high_risk, delta_color="inverse")
+with m3:
+    st.metric("Medium Risk Profile", med_risk)
+with m4:
+    st.metric("Low Risk Profile", low_risk)
+
+st.write("---")
+
+# 5. Visualizations
+c1, c2 = st.columns([1, 1.4])
+
+with c1:
+    section_title("Risk Tier Distribution")
+    fig_pie = px.pie(
+        risk_df,
+        names="risk_level",
+        hole=0.6,
+        color="risk_level",
         color_discrete_map=RISK_COLORS,
     )
-    fig.update_layout(
-        height=390,
-        margin=dict(t=10, b=10, l=10, r=10),
-        legend_title_text="",
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
+    fig_pie.update_layout(
+        height=400, showlegend=True, legend=dict(orientation="h", y=-0.1)
     )
-    fig.update_traces(
-        textinfo="percent",
-        hovertemplate="<b>%{label}</b><br>Users: %{value}<extra></extra>",
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig_pie, use_container_width=True)
 
-with chart_cols[1]:
-    section_title("Risk Contributors")
-    fig = px.bar(
-        risk["risk_contributors"],
+with c2:
+    section_title("Global Risk Contributors (Events)")
+    # Aggregate event-level indicators
+    contributors = pd.DataFrame(
+        {
+            "Factor": [
+                "ML Anomaly Flags",
+                "Sensitive Access",
+                "After-Hours",
+                "Exfiltration Patterns",
+            ],
+            "Count": [
+                int(df["unusual_query_flag"].sum()),
+                int(df["sensitive_data_access"].sum()),
+                int(df["after_hours_access"].sum()),
+                int(df["data_exfiltration_pattern"].sum()),
+            ],
+        }
+    ).sort_values("Count", ascending=True)
+
+    fig_bar = px.bar(
+        contributors,
         x="Count",
         y="Factor",
         orientation="h",
-        text="Count",
         color="Factor",
+        color_discrete_sequence=px.colors.qualitative.Safe,
     )
-    fig.update_layout(
-        height=390,
-        showlegend=False,
-        xaxis_title="Events",
-        yaxis_title="",
-        margin=dict(t=10, b=10, l=10, r=10),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-    )
-    fig.update_traces(textposition="outside")
-    st.plotly_chart(fig, use_container_width=True)
+    fig_bar.update_layout(height=400, showlegend=False)
+    st.plotly_chart(fig_bar, use_container_width=True)
 
-section_title("Highest Risk Users")
-profile = risk["user_risk_profile"].copy()
-profile["risk_score"] = profile["risk_score"].round(1)
-profile["anomaly_rate"] = (profile["anomaly_rate"] * 100).round(1)
-profile["sensitive_rate"] = (profile["sensitive_rate"] * 100).round(1)
-
-display_profile = cast(
-    pd.DataFrame,
-    profile[
-        [
-            "user_id",
-            "risk_level",
-            "risk_score",
-            "total_events",
-            "anomaly_events",
-            "anomaly_rate",
-            "sensitive_rate",
-        ]
-    ],
-).rename(
+# 6. Critical User Table
+section_title("Highest Risk Behavior Profiles")
+display_df = risk_df[
+    [
+        "full_name",
+        "department",
+        "risk_level",
+        "risk_score",
+        "total_queries",
+        "anomaly_events",
+    ]
+].rename(
     columns={
-        "user_id": "User",
+        "full_name": "Employee Name",
+        "department": "Department",
         "risk_level": "Risk Level",
-        "risk_score": "Risk Score",
-        "total_events": "Events",
+        "risk_score": "Risk Score (0-100)",
+        "total_queries": "Total Events",
         "anomaly_events": "ML Alerts",
-        "anomaly_rate": "Alert Rate %",
-        "sensitive_rate": "Sensitive Access %",
     }
 )
 
-st.dataframe(
-    display_profile,
-    hide_index=True,
-    use_container_width=True,
-)
+st.dataframe(display_df, use_container_width=True, hide_index=True)

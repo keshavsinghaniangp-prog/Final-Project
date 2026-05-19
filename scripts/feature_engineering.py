@@ -1,26 +1,26 @@
 import pandas as pd
 
-def build_features(logs):
 
-    features = logs.groupby("user").agg({
+def engineer_user_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Transforms raw log activity into user-level behavioral metrics.
+    Accepts the relational dataframe (including joined employee fields).
+    """
+    if df.empty:
+        return pd.DataFrame()
 
-        "rows_returned":"mean",
-        "after_hours":"sum",
-        "sensitive_access":"sum",
-        "failed_login":"sum",
-        "query":"count"
+    # Define required columns for the aggregation
+    # We group by ID and identity fields to preserve them in the output
+    user_profiles = (
+        df.groupby(["user_id", "full_name", "department"])
+        .agg(
+            avg_rows=("rows_returned", "mean"),
+            after_hours_count=("after_hours_access", "sum"),
+            sensitive_access_count=("sensitive_data_access", "sum"),
+            total_queries=("user_id", "size"),
+            anomaly_events=("unusual_query_flag", "sum"),
+        )
+        .reset_index()
+    )
 
-    }).reset_index()
-
-    features.columns = [
-
-        "user",
-        "avg_rows",
-        "after_hours_count",
-        "sensitive_access_count",
-        "failed_logins",
-        "total_queries"
-
-    ]
-
-    return features
+    return user_profiles

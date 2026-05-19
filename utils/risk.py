@@ -16,7 +16,7 @@ def build_user_risk_profile(df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()
 
     profile = (
-        df.groupby("user_id")
+        df.groupby(["user_id", "full_name", "department"])
         .agg(
             total_events=("user_id", "size"),
             anomaly_events=("unusual_query_flag", "sum"),

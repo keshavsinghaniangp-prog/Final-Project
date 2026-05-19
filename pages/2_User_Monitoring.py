@@ -1,83 +1,95 @@
-from typing import cast
-
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from _bootstrap import ensure_project_root
+from utils.data_loader import get_processed_data
+from utils.ui import configure_page, metric_card, page_header, section_title, show_empty
 
-ensure_project_root()
-
-from utils.data_loader import get_processed_data  # noqa: E402
-from utils.ui import (  # noqa: E402
-    configure_page,
-    metric_card,
-    page_header,
-    section_title,
-    show_empty,
-)
+# 1. Configuration
+configure_page("User Monitoring")
 
 
+# 2. Data Loading
 @st.cache_data(ttl=5)
-def load_page_data():
+def load_monitoring_data():
     return get_processed_data()
 
 
-configure_page("User Monitoring")
-
-st.sidebar.header("Investigation")
-df = load_page_data()
-
-page_header(
-    "User Monitoring",
-    "Per-user resource access, behavioral indicators, and forensic audit records.",
-    "Healthy" if not df.empty else "Awaiting Logs",
-)
+df = load_monitoring_data()
 
 if df.empty:
-    show_empty(
-        "No records are available.",
-        ["Confirm Docker MySQL is running and the pipeline has inserted rows."],
-    )
+    page_header("User Monitoring", "Data Source Offline", "Offline")
+    show_empty("No live records found in MySQL.", ["Ensure the pipeline is running."])
     st.stop()
 
-users = sorted(df["user_id"].astype(str).unique())
-selected_user = st.sidebar.selectbox("User", users)
-user_data = cast(
-    pd.DataFrame, df[df["user_id"].astype(str) == selected_user]
-).sort_values(by=["timestamp", "user_timeline_step"])
+# 3. Sidebar Selection (Identity-Based)
+st.sidebar.header("Investigation")
 
+# Extract unique users with their metadata
+users_meta = (
+    df[["user_id", "full_name", "department"]]
+    .drop_duplicates()
+    .sort_values("full_name")
+)
+user_options = {
+    f"{row['full_name']} ({row['department']})": row["user_id"]
+    for _, row in users_meta.iterrows()
+}
+
+selected_label = st.sidebar.selectbox("Select Employee", list(user_options.keys()))
+selected_uid = user_options[selected_label]
+
+# Filter individual data
+user_data = df[df["user_id"] == selected_uid].sort_values("timestamp", ascending=False)
+
+# 4. Header
+page_header("Forensic View", f"Detailed activity audit for {selected_label}", "Healthy")
+
+# 5. Metric Summary (Individual)
 cols = st.columns(4)
 with cols[0]:
-    metric_card("Events", len(user_data), "Total user activity")
+    metric_card("Total Events", len(user_data), "Captured queries")
 with cols[1]:
-    metric_card("ML alerts", int(user_data["unusual_query_flag"].sum()))
+    metric_card(
+        "ML Flagged", int(user_data["unusual_query_flag"].sum()), "Anomalous actions"
+    )
 with cols[2]:
-    metric_card("Sensitive access", int(user_data["sensitive_data_access"].sum()))
+    metric_card(
+        "Sensitive Access",
+        int(user_data["sensitive_data_access"].sum()),
+        "High-value tables",
+    )
 with cols[3]:
-    metric_card("After-hours", int(user_data["after_hours_access"].sum()))
+    metric_card(
+        "Exfil Signals",
+        int(user_data["data_exfiltration_pattern"].sum()),
+        "Data leak patterns",
+    )
 
-section_title("Resource Profile")
-table_counts = user_data["table_accessed"].value_counts().reset_index().head(10)
-table_counts.columns = ["Table", "Events"]
-fig = px.bar(
-    table_counts,
-    x="Events",
-    y="Table",
+st.write("---")
+
+# 6. Interaction Profile
+section_title("Database Resource Interaction Profile")
+vol_data = user_data["table_accessed"].value_counts().reset_index()
+vol_data.columns = ["Resource (Table)", "Query Count"]
+
+fig_vol = px.bar(
+    vol_data,
+    x="Query Count",
+    y="Resource (Table)",
     orientation="h",
-    text="Events",
+    color="Query Count",
+    color_continuous_scale="Blues",
 )
-fig.update_layout(
-    height=360,
-    showlegend=False,
-    margin=dict(t=10, b=10, l=10, r=10),
-)
-st.plotly_chart(fig, use_container_width=True)
+fig_vol.update_layout(height=400, showlegend=False)
+st.plotly_chart(fig_vol, use_container_width=True)
 
-section_title("Forensic Audit Log")
-display_cols = [
+# 7. Forensic Audit Table
+section_title("Chronological Forensic Audit Log")
+
+# Select relevant columns for the audit
+audit_cols = [
     "timestamp",
-    "user_id",
     "query_type",
     "table_accessed",
     "rows_returned",
@@ -86,8 +98,15 @@ display_cols = [
     "unusual_query_flag",
     "query_text",
 ]
-st.dataframe(
-    user_data[[col for col in display_cols if col in user_data.columns]],
-    hide_index=True,
-    use_container_width=True,
+
+display_audit = user_data[audit_cols].rename(
+    columns={
+        "unusual_query_flag": "ML Flag",
+        "timestamp": "Time",
+        "query_type": "Type",
+        "table_accessed": "Target",
+        "query_text": "Executed SQL String",
+    }
 )
+
+st.dataframe(display_audit, use_container_width=True, hide_index=True)

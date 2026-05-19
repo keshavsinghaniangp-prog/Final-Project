@@ -1,4 +1,3 @@
-import pandas as pd
 import plotly.express as px
 import streamlit as st
 
@@ -29,7 +28,7 @@ st.sidebar.header("Investigation")
 users_meta = (
     df[["user_id", "full_name", "department"]]
     .drop_duplicates()
-    .sort_values("full_name")
+    .sort_values(by="full_name")
 )
 user_options = {
     f"{row['full_name']} ({row['department']})": row["user_id"]
@@ -40,7 +39,9 @@ selected_label = st.sidebar.selectbox("Select Employee", list(user_options.keys(
 selected_uid = user_options[selected_label]
 
 # Filter individual data
-user_data = df[df["user_id"] == selected_uid].sort_values("timestamp", ascending=False)
+user_data = df[df["user_id"] == selected_uid].sort_values(
+    by="timestamp", ascending=False
+)
 
 # 4. Header
 page_header("Forensic View", f"Detailed activity audit for {selected_label}", "Healthy")
@@ -99,7 +100,8 @@ audit_cols = [
     "query_text",
 ]
 
-display_audit = user_data[audit_cols].rename(
+display_audit = user_data[audit_cols].copy()
+display_audit = display_audit.rename(
     columns={
         "unusual_query_flag": "ML Flag",
         "timestamp": "Time",

@@ -122,7 +122,9 @@ display_df = risk_df[
         "total_queries",
         "anomaly_events",
     ]
-].rename(
+].copy()
+
+display_df = display_df.rename(
     columns={
         "full_name": "Employee Name",
         "department": "Department",

@@ -93,7 +93,9 @@ def train_models():
     X_b_scaled = scaler.fit_transform(X_b)
 
     # We set a small contamination factor for the baseline
-    model_b = IsolationForest(n_estimators=100, contamination=0.05, random_state=42)
+    model_b = IsolationForest(
+        n_estimators=100, contamination=float(0.05), random_state=42
+    )
     model_b.fit(X_b_scaled)
 
     joblib.dump(scaler, os.path.join(MODEL_DIR, "scaler.pkl"))

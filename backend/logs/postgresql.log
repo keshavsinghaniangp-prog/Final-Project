@@ -5036,3 +5036,135 @@
 2026-05-19 23:10:08 user_21 SELECT SELECT id, name FROM products LIMIT 100
 2026-05-19 23:10:10 user_06 SELECT SELECT id, name FROM customers LIMIT 100
 2026-05-19 23:10:11 user_39 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:10:13 user_40 SELECT SELECT id, name FROM transactions LIMIT 100
+2026-05-19 23:10:13 user_29 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:10:14 user_20 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:16 user_22 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:17 user_14 SELECT SELECT stock_level FROM inventory WHERE warehouse_zone = 'ZONE-A'
+2026-05-19 23:10:18 user_33 SELECT SELECT stock_level FROM inventory WHERE warehouse_zone = 'ZONE-A'
+2026-05-19 23:10:20 user_15 SELECT SELECT id, name FROM transactions LIMIT 100
+2026-05-19 23:10:21 user_28 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:10:23 user_12 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:25 user_16 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:26 user_19 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:10:27 user_37 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:28 user_34 SELECT SELECT id, name FROM customers LIMIT 100
+2026-05-19 23:10:30 user_22 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:30 user_17 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:32 user_31 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:10:33 user_12 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:34 user_04 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:35 user_17 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:36 user_37 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:37 user_14 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:38 user_26 SELECT SELECT stock_level FROM inventory WHERE warehouse_zone = 'ZONE-A'
+2026-05-19 23:10:39 user_32 SELECT SELECT id, name FROM customers LIMIT 100
+2026-05-19 23:10:41 user_33 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:10:42 user_33 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:43 user_21 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:44 user_39 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:10:45 user_08 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:46 user_01 SELECT SELECT id, name FROM salary LIMIT 100
+2026-05-19 23:10:47 user_08 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:10:49 user_35 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:10:51 user_05 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:10:52 user_18 UPDATE UPDATE inventory SET stock = stock - 5 WHERE part_sku = 'HYD-PUMP-01'
+2026-05-19 23:10:54 user_31 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:10:55 user_03 SELECT SELECT id, name FROM transactions LIMIT 100
+2026-05-19 23:10:56 user_05 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:10:58 user_18 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:11:00 user_04 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:00 user_22 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:02 user_38 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:03 user_18 SELECT SELECT stock_level FROM inventory WHERE warehouse_zone = 'ZONE-A'
+2026-05-19 23:11:05 user_36 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:06 user_13 SELECT SELECT id, name FROM customers LIMIT 100
+2026-05-19 23:11:07 user_39 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:11:09 user_27 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:11:10 user_05 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:11:11 user_08 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:12 user_17 UPDATE UPDATE inventory SET stock = stock - 2 WHERE part_sku = 'AXLE-BRKT-99'
+2026-05-19 23:11:13 user_06 SELECT SELECT id, name FROM customers LIMIT 100
+2026-05-19 23:11:14 user_05 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:11:15 user_12 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:16 user_32 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:18 user_07 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:20 user_22 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:21 user_11 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:23 user_19 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:11:24 user_01 SELECT SELECT id, name FROM transactions LIMIT 100
+2026-05-19 23:11:26 user_18 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:27 user_33 SELECT SELECT stock_level FROM inventory WHERE warehouse_zone = 'ZONE-A'
+2026-05-19 23:11:28 user_14 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:29 user_29 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:11:31 user_17 SELECT SELECT id, name FROM transactions LIMIT 100
+2026-05-19 23:11:32 user_29 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:11:34 user_09 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:11:35 user_40 SELECT SELECT id, name FROM transactions LIMIT 100
+2026-05-19 23:11:37 user_23 SELECT SELECT id, name FROM customers LIMIT 100
+2026-05-19 23:11:38 user_26 SELECT SELECT id, name FROM transactions LIMIT 100
+2026-05-19 23:11:39 user_33 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:40 user_10 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:11:41 user_20 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:42 user_36 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:43 user_28 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:11:44 user_10 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:11:45 user_24 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:11:47 user_26 UPDATE UPDATE inventory SET stock = stock - 5 WHERE part_sku = 'HYD-PUMP-01'
+2026-05-19 23:11:49 user_11 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:50 user_39 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:11:51 user_08 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:52 user_12 SELECT SELECT id, name FROM transactions LIMIT 100
+2026-05-19 23:11:53 user_39 SELECT SELECT stock_level FROM inventory WHERE warehouse_zone = 'ZONE-A'
+2026-05-19 23:11:54 user_31 UPDATE UPDATE inventory SET stock = stock - 7 WHERE part_sku = 'HYD-PUMP-01'
+2026-05-19 23:11:56 user_11 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:11:57 user_19 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:11:58 user_04 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:00 user_08 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:01 user_28 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:02 user_27 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:12:02 user_16 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:03 user_30 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:12:04 user_15 SELECT SELECT id, name FROM salary LIMIT 100
+2026-05-19 23:12:05 user_10 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:12:07 user_08 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:08 user_33 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:12:10 user_23 SELECT SELECT id, name FROM salary LIMIT 100
+2026-05-19 23:12:11 user_40 SELECT SELECT id, name FROM transactions LIMIT 100
+2026-05-19 23:12:12 user_21 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:13 user_27 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:12:15 user_38 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:17 user_11 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:12:17 user_23 SELECT SELECT id, name FROM transactions LIMIT 100
+2026-05-19 23:12:19 user_24 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:12:20 user_29 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:12:21 user_16 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:22 user_22 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:24 user_21 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:25 user_05 SELECT SELECT ssn, salary_grade FROM hr_data WHERE performance_rating = 'Critical'
+2026-05-19 23:12:26 user_08 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:27 user_06 SELECT SELECT * FROM finance WHERE transaction_type = 'WIRE_TRANSFER' AND amount > 50000
+2026-05-19 23:12:28 user_24 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:12:29 user_39 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:12:31 user_32 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:32 user_21 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:33 user_09 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:12:35 user_15 SELECT SELECT id, name FROM salary LIMIT 100
+2026-05-19 23:12:35 user_02 SELECT SELECT * FROM finance WHERE transaction_type = 'WIRE_TRANSFER' AND amount > 50000
+2026-05-19 23:12:36 user_06 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:37 user_40 SELECT SELECT id, name FROM salary LIMIT 100
+2026-05-19 23:12:39 user_14 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:40 user_21 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:12:41 user_04 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:42 user_22 UPDATE UPDATE inventory SET stock = stock - 8 WHERE part_sku = 'AXLE-BRKT-99'
+2026-05-19 23:12:44 user_02 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:45 user_04 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:47 user_29 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:12:47 user_14 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:48 user_25 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:50 user_12 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:12:51 user_37 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:53 user_19 SELECT SELECT id, name FROM employees LIMIT 100
+2026-05-19 23:12:54 user_37 SELECT SELECT id, name FROM products LIMIT 100
+2026-05-19 23:12:55 user_32 SELECT SELECT id, name FROM orders LIMIT 100
+2026-05-19 23:12:56 user_26 SELECT SELECT id, name FROM products LIMIT 100

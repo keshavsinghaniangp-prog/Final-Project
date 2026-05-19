@@ -1,0 +1,12 @@
+pandas
+scikit-learn
+joblib
+streamlit
+reportlab
+plotly
+numpy
+fastapi
+uvicorn
+sqlalchemy
+watchdog
+mysql-connector-python

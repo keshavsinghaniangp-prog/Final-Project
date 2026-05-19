@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  mysql_db:
+    image: mysql:8.0
+    container_name: dam_security_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: dam_security_phpmyadmin
+    environment:
+      PMA_HOST: mysql_db
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql_db
+
+volumes:
+  mysql_data:

@@ -1,0 +1,8 @@
+{
+    "python.defaultInterpreterPath": "C:/Users/kes05/AppData/Local/Programs/Python/Python311/python.exe",
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.extraPaths": [
+        ".",
+        "C:/Users/kes05/AppData/Local/Programs/Python/Python311/Lib/site-packages"
+    ]
+}

@@ -94,7 +94,9 @@ def train_models():
 
     # We set a small contamination factor for the baseline
     model_b = IsolationForest(
-        n_estimators=100, contamination=float(0.05), random_state=42
+        n_estimators=100,
+        contamination=0.05,  # type: ignore
+        random_state=42,
     )
     model_b.fit(X_b_scaled)
 

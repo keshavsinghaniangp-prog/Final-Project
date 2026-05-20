@@ -20,8 +20,7 @@ def load_all_metrics():
     if df.empty:
         return pd.DataFrame(), pd.DataFrame()
 
-    # Tier 1: Query-Level Anomaly Detection is already done in the pipeline
-    # Tier 2: User-Level Behavioral Profiling
+    # Tier 2: User-Level Behavioral Profiling + Peer Group Analysis + Velocity
     user_features = engineer_user_features(df)
     risk_df = calculate_risk_scores(user_features)
 
@@ -33,7 +32,7 @@ df, risk_df = load_all_metrics()
 # 3. Header
 page_header(
     "Risk Posture",
-    "Global security overview using Supervised (Query) and Unsupervised (Behavioral) ML models.",
+    "Behavioral risk analysis with Explainable AI (XAI) and Peer-Group normalization.",
     "Healthy" if not df.empty else "Awaiting Logs",
 )
 
@@ -44,7 +43,7 @@ if df.empty:
     )
     st.stop()
 
-# 4. Top KPI Metric Cards (Unique Users)
+# 4. Top KPI Metric Cards
 m1, m2, m3, m4 = st.columns(4)
 
 total_users = len(risk_df)
@@ -81,46 +80,36 @@ with c1:
     st.plotly_chart(fig_pie, use_container_width=True)
 
 with c2:
-    section_title("Global Risk Contributors (Events)")
-    # Aggregate event-level indicators
-    contributors = pd.DataFrame(
-        {
-            "Factor": [
-                "ML Anomaly Flags",
-                "Sensitive Access",
-                "After-Hours",
-                "Exfiltration Patterns",
-            ],
-            "Count": [
-                int(df["unusual_query_flag"].sum()),
-                int(df["sensitive_data_access"].sum()),
-                int(df["after_hours_access"].sum()),
-                int(df["data_exfiltration_pattern"].sum()),
-            ],
-        }
-    ).sort_values("Count", ascending=True)
+    section_title("Risk Contributor Analysis (XAI)")
+    # Show summary of SHAP top reasons across the organization
+    xai_summary = risk_df["top_risk_reason"].value_counts().reset_index()
+    xai_summary.columns = ["Risk Driver", "Impacted Users"]
 
-    fig_bar = px.bar(
-        contributors,
-        x="Count",
-        y="Factor",
+    fig_xai = px.bar(
+        xai_summary,
+        x="Impacted Users",
+        y="Risk Driver",
         orientation="h",
-        color="Factor",
-        color_discrete_sequence=px.colors.qualitative.Safe,
+        color="Impacted Users",
+        color_continuous_scale="Reds",
     )
-    fig_bar.update_layout(height=400, showlegend=False)
-    st.plotly_chart(fig_bar, use_container_width=True)
+    fig_xai.update_layout(height=400, showlegend=False)
+    st.plotly_chart(fig_xai, use_container_width=True)
 
-# 6. Critical User Table
-section_title("Highest Risk Behavior Profiles")
+# 6. Critical User Table with XAI Explanations
+section_title("Behavioral Risk Profile Audit")
+st.info(
+    "💡 **XAI Insight:** The 'Primary Risk Driver' is calculated using SHAP values from the behavioral model."
+)
+
 display_df = risk_df[
     [
         "full_name",
         "department",
-        "risk_level",
         "risk_score",
+        "risk_level",
+        "top_risk_reason",
         "total_queries",
-        "anomaly_events",
     ]
 ].copy()
 
@@ -128,10 +117,10 @@ display_df = display_df.rename(
     columns={
         "full_name": "Employee Name",
         "department": "Department",
-        "risk_level": "Risk Level",
-        "risk_score": "Risk Score (0-100)",
-        "total_queries": "Total Events",
-        "anomaly_events": "ML Alerts",
+        "risk_score": "Risk Score",
+        "risk_level": "Tier",
+        "top_risk_reason": "Primary Risk Driver",
+        "total_queries": "Event Count",
     }
 )
 

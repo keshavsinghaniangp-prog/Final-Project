@@ -11,3 +11,6 @@ sqlalchemy
 watchdog
 mysql-connector-python
 faker
+sqlparse
+shap
+matplotlib

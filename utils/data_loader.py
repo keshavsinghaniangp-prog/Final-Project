@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from utils.config import DB_URI
@@ -9,6 +9,7 @@ from utils.config import DB_URI
 def _read_table() -> pd.DataFrame:
     engine = create_engine(DB_URI)
     # Objective 4: SQL JOIN for role-based identity enrichment
+    # Updated to include source_ip and client_app
     query = """
         SELECT
             q.*,
@@ -28,8 +29,6 @@ def _enrich(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     if "anomaly_flag" in df.columns:
         df = df.rename(columns={"anomaly_flag": "unusual_query_flag"})
-    if "id" in df.columns and "event_id" not in df.columns:
-        df = df.rename(columns={"id": "event_id"})
 
     if "timestamp" in df.columns:
         df["timestamp"] = pd.to_datetime(df["timestamp"])

@@ -50,7 +50,7 @@ def seed_employees():
             conn.commit()
 
         df.to_sql("employees", engine, if_exists="append", index=False)
-        print(f"✅ Successfully seeded 40 employees into MySQL.")
+        print("✅ Successfully seeded 40 employees into MySQL.")
     except Exception as e:
         print(f"❌ Seeding Failed: {e}")
 
